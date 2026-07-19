@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0b0b13" />
+  <title>Octave Music</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="icon" type="image/png" href="./icon.png" />
+</head>
+<body>
+  <!-- ============ STATUS / OFFLINE BANNER ============ -->
+  <div id="statusBanner" class="status-banner hidden">
+    <span class="status-dot"></span>
+    <span id="statusText">You're offline</span>
+    <button id="retryBtn" class="retry-btn">Retry</button>
+  </div>
+
+  <!-- ============ APP SHELL ============ -->
+  <div id="appShell" class="app-shell">
+    <!-- Top header -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="./icon.png" alt="Octave" class="brand-logo" />
+        <span class="brand-name">Octave</span>
+      </div>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Search songs, artists, albums..." disabled />
+      </div>
+    </header>
+
+    <!-- Greeting -->
+    <section class="greeting">
+      <h1 id="greetingTitle">Good evening</h1>
+      <p id="greetingSub">Pick up where you left off</p>
+    </section>
+
+    <!-- Quick picks grid -->
+    <section class="quick-picks" id="quickPicks">
+      <!-- 6 placeholder cards - same look as music streaming UI -->
+    </section>
+
+    <!-- Made for you section -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Made for you</h2>
+        <span class="see-all">See all</span>
+      </div>
+      <div class="card-row" id="cardRow"></div>
+    </section>
+
+    <!-- Recently played -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Recently played</h2>
+        <span class="see-all">See all</span>
+      </div>
+      <div class="list-row" id="listRow"></div>
+    </section>
+
+    <!-- Bottom padding for nav -->
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <!-- ============ OFFLINE OVERLAY ============ -->
+  <div id="offlineOverlay" class="offline-overlay hidden">
+    <div class="offline-card">
+      <img src="./icon.png" alt="Octave" class="offline-logo" />
+      <h2>You're offline</h2>
+      <p>Octave needs an internet connection to stream music. Your library UI is still here so the app feels native while you wait.</p>
+      <button id="offlineRetryBtn" class="primary-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        Retry connection
+      </button>
+      <p class="hint" id="lastSeen">Last seen: just now</p>
+    </div>
+  </div>
+
+  <!-- ============ MINI PLAYER (visual only) ============ -->
+  <div id="miniPlayer" class="mini-player">
+    <div class="mini-art"></div>
+    <div class="mini-meta">
+      <div class="mini-title">Nothing playing</div>
+      <div class="mini-sub">Tap a song to start</div>
+    </div>
+    <button class="mini-play" aria-label="Play">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+
+  <!-- ============ BOTTOM NAV (visual only) ============ -->
+  <nav class="bottom-nav">
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 3l9 8h-3v9h-4v-6H10v6H6v-9H3z"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+      <span>Library</span>
+    </button>
+  </nav>
+
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "octave-music-app",
+  "version": "1.0.0",
+  "description": "Octave Music - native Android wrapper for music.octavestreaming.com with offline UI fallback",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf www && cp -r src www && cp source-icon-1024.png www/icon.png && echo 'Build OK' && ls -la www",
+    "sync": "npm run build && cap sync android",
+    "open:android": "cap open android",
+    "assets:generate": "capacitor-assets generate --android",
+    "icons": "capacitor-assets generate --android --icon",
+    "splash": "capacitor-assets generate --android --splash"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/assets": "^3.0.5",
+    "typescript": "^5.5.4"
+  }
+}

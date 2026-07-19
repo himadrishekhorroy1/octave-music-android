@@ -1,0 +1,123 @@
+name: Build Android APK
+
+# =============================================================
+# Octave Music - GitHub Actions CI
+# Builds a debug APK on every push/PR to main, and a signed
+# release APK when a tag like v1.0.0 is pushed.
+# Artifacts are downloadable from the Actions tab.
+# =============================================================
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platforms;android-35
+            build-tools;35.0.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Copy icon to resources
+        run: |
+          mkdir -p resources
+          cp source-icon-1024.png resources/icon.png
+          # Create a simple splash source (just the icon on dark bg)
+          python3 - <<'PY'
+          from PIL import Image
+          icon = Image.open('source-icon-1024.png').convert('RGBA')
+          splash = Image.new('RGBA', (2732, 2732), (11, 11, 19, 255))
+          # Center the icon at 30% size
+          s = int(2732 * 0.30)
+          icon_s = icon.resize((s, s), Image.LANCZOS)
+          splash.paste(icon_s, ((2732 - s) // 2, (2732 - s) // 2), icon_s)
+          splash.save('resources/splash.png')
+          print('splash created')
+          PY
+
+      - name: Generate native icons & splash
+        run: npx capacitor-assets generate --android || true
+
+      - name: Add Android platform (if missing)
+        run: npx cap add android || true
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Patch native MainActivity for offline fallback
+        run: node scripts/patch-android-offline.js
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Build release APK (unsigned, on tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: octave-music-debug
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload release APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: octave-music-release
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
+            SIZE=$(du -h android/app/build/outputs/apk/debug/app-debug.apk | cut -f1)
+            echo "✅ Debug APK built: \`$SIZE\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Debug APK build failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download from the **Artifacts** section of this workflow run." >> $GITHUB_STEP_SUMMARY

@@ -56,6 +56,9 @@ jobs:
       - name: Build web assets
         run: npm run build
 
+      - name: Install Python imaging deps
+        run: pip install --quiet Pillow
+
       - name: Copy icon to resources
         run: |
           mkdir -p resources
